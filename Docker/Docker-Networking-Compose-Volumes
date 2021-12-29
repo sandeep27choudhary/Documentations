@@ -1,0 +1,236 @@
+Docker: Networking, Docker Compose & Volumes
+
+
+Docker Network:
+
+What’s Networking?  
+Networking is all about communication between processes.
+So, similarly Docker’s Networking is also about communication. Communication between Docker containers and the outside world with the help of the host machine where the Docker daemon is running.
+
+So, what's the difference between Docker’s networking and others like (VMs or physical machines)?
+
+Flexibility. Virtual machines are rather more flexible than Docker as they support more configurations such as NAT and host networking while Docker uses a bridge network. Yes, Docker can support host networking but only on linux.
+In Docker containers, the network isolation is done by using a network namespace.
+We can probably run large numbers of containers on a single-node Docker host.
+But in VMs the it runs fewer processes so they don’t usually run these network limits
+
+
+Let’s learn more about Docker network:
+
+In Docker the containers communicate with each other by creating a default bridge. So most of the time we don’t have to deal with networking. This works in most cases.
+
+Type of Network drivers Docker allows:
+Bridge
+Host
+none
+
+They may or may not work in every case so we also have user defined networks :
+Overlay
+macvlan
+
+
+The Bridge Driver
+
+Whenever we start Docker this is the default driver and all the containers automatically get connected to it. If we want our containers running in isolation to connect and communicate with other containers, as the container is running in isolation the bridge network solves the port conflict problem. Containers running in the same bridge network can communicate with each other.
+Access is restricted to bridge, Docker uses iptables on the host machine to prevent access outside of the bridge network
+
+Don't use Bridge Network for production ?
+As the containers communicate with each other with the help of IP addresses rather than automatic service discovery. Everytime we run a container, it gets a new IP address.
+This could work well in local development or CI/CD but not for production.
+And also it allows unrelated containers to communicate with it which can lead to security issues.
+
+In short, communication in the Bridge network is via IP address and not by container name, and whenever we start the containers it gets a different IP address.
+
+The host Driver
+
+
+This works on linux host. The host driver uses the networking provided by the host machine. 
+And also it removes isolation between the host and and the container.
+
+When should we use it?
+When we don't want to rely on docker’s networking .
+
+The only downside of the host driver is that it doesn’t allow multiple containers to run on the same host having the same port.
+
+
+The None Driver
+
+In this it doesn’t attach containers to any network.
+It can be used when we want to disable the networking on a container.
+
+
+The Overlay Driver
+
+It’s for multi-host network communication. This driver allows the containers to communicate with each other across the host.
+
+The macvlan Driver
+
+Macvlan driver connects the Docker containers directly to the physical host machine.
+It’s the best choice for legacy applications where we need to attach to a physical machine for performance reasons.
+
+According to Docker Documentation :
+“Macvlan networks allow you to assign a MAC address to a container, making it appear as a physical device on your network. The Docker daemon routes traffic to containers by their MAC addresses. Using the macvlan driver is sometimes the best choice when dealing with legacy applications that expect to be directly connected to the physical network, rather than routed through the Docker host’s network stack.”
+
+
+Basic Docker Network commands
+
+To see command list                   : docker network help
+Creating a network                   : docker network create network network_name
+Check all networks available            : docker network ls
+Connecting a container to network              : docker network connect network_name container_id
+Disconnecting a container from network  : docker network disconnect network_name container_id
+Inspecting the network               : docker network inspect
+Removing a network                   : docker network rm network_name
+
+
+
+Docker Compose Networking
+
+Docker compose is a tool for running multi-container applications on Docker.
+Each container is defined under a docker-compose YAML file, and we start the container just by using a single command docker-compose up .
+Docker compose creates a single network for each container that are defined in compose file 
+And all containers connect and communicate with each other through the default network.
+
+
+Docker Compose
+
+Why should we use it? 
+
+Portability : just a single command can bring up a complete development environment or destroy it - docker-compose up , docker-compose down. Easy deployment of the application.
+Testing : it supports unit and E2E test in a quick and repeatable format by putting them in their own environment.
+Multiple isolated environments on a single host : we can run multiple copies of the same environment on one machine. It also prevents different projects and services from interfering with each other.
+
+
+Installing Docker compose on linux
+
+sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+Apply executable permission to it
+sudo chmod +x /usr/local/bin/docker-compose
+
+Check 
+docker-compose --version
+
+
+Structure of the Compose file 
+It mainly has 4 parts:
+Version of the compose file
+Services which will be built
+Used volumes
+Network which connect the different services
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sample docker-compose.yaml :
+
+
+
+
+
+Docker-Compose Concepts/Keywords
+
+Services:
+
+This tag contains all the containers. 
+Here we can define or build the base image either by using preexisting images that are available in dockerhub or building the image by using dockerfile.
+The services tag is used as a parent tag.
+
+Ports :
+
+Ports are mainly used for connecting the container or exposing the containers to private or public environments.
+It can be done by two methods
+Exposing the port to linked services 
+expose:
+“3000”
+“8000”
+Exposing the port to the host system
+ports:
+“8000:80” # host:container
+Or we can also define either udp or tcp
+ports:
+“8000:80/udp”
+
+Commands 
+ 
+This is used for execution of any action once the container is started. It's a replacement for cmd.
+
+command:
+‘npm start’
+
+
+Question?
+What's the difference between DOCKER RUN, CMD & ENTRYPOINT
+
+Let’s start by introduction of these commands
+RUN 
+Run command is used to execute the commands in a new layer and create a new image most of the time it is used to install software packages.
+CMD
+It sets default commands and parameters. It may overwritten from command line when the docker container runs
+ENTRYPOINT
+It configures a container that will run as an executable.
+
+
+Before jumping into these lets understand shell and exec form
+
+Shell form
+<instruction> <command>
+ So whenever instruction/commands are executed in shell form it calls
+/bin/sh -c <command>
+example
+ENV name John dow
+ENTRYPOINT echo “Hello, $name”
+
+When conatine runs 
+docker run -it <image>
+
+Output
+    Hello, John dow
+
+Exec form
+*preferred for CMD, ENTRYPOINT
+
+<instruction> [“executable”, “param1”, “param2”,. . .]
+
+Examples 
+RUN ["apt-get", "install", "python3"]
+CMD ["/bin/echo", "Hello world"]
+ENTRYPOINT ["/bin/echo", "Hello world"]
+
+Whenever instruction is executed in exec form it calls executable directly and shell processing doesn’t happen
+
+example
+ENV name John Dow
+ENTRYPOINT ["/bin/echo", "Hello, $name"]
+
+output:
+Hello, $name
+
+Run bash
+ENV name John Dow
+ENTRYPOINT ["/bin/bash", "-c", "echo Hello, $name"]
+
+Output
+Hello, John Dow
+
+Let’s get into main topics 
+
+RUN 
+
+It allows us to execute any commands on top of an image and creates a new image layer.
+There could be multiple run commands.
+
+Forms:
+RUN <command> # shell form
+RUN <”executable”, “param1”, “param2”]  #exec form
+
+ 
