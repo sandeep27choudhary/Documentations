@@ -5,7 +5,8 @@ seoDescription: "Discover how Large Language Models enhance AIOps by automating 
 datePublished: Sun Jul 06 2025 09:39:09 GMT+0000 (Coordinated Universal Time)
 cuid: cmcrhd3np000a02jy05tu6rp0
 slug: llms-drive-aiops-intelligent-prediction-and-automated-incident-resolution
-ogImage: https://cdn.hashnode.com/res/hashnode/image/upload/v1751794730840/1ba0d45e-0467-46a6-9494-9dfb585acf30.png
+cover: https://cdn.hashnode.com/res/hashnode/image/upload/v1752262258398/83ec09e3-92da-4cf0-8d6e-cc8ede94056d.png
+ogImage: https://cdn.hashnode.com/res/hashnode/image/upload/v1752262319333/6b417ac7-d2c6-4be5-bfad-5b9dd323893f.png
 
 ---
 
