@@ -5,6 +5,8 @@ seoDescription: "A comprehensive comparison of LangGraph and LangChain framework
 datePublished: Sat Jul 05 2025 13:10:35 GMT+0000 (Coordinated Universal Time)
 cuid: cmcq9h5lm000502k3cxxcdpt4
 slug: langgraph-vs-langchain-demystifying-llm-frameworks-for-beginner-friendly-application-mastery
+cover: https://cdn.hashnode.com/res/hashnode/image/upload/v1752260661744/682dc76d-4cc8-46fa-a224-e60e5b54acc5.png
+ogImage: https://cdn.hashnode.com/res/hashnode/image/upload/v1752260719474/f49acdc1-6578-41d2-afe6-aace8943df3c.png
 tags: langchain, ai-agent, langgraph, langgraph-vs-langchain
 
 ---
